@@ -6,8 +6,8 @@ This module contains Python dataclasses mirroring the DB tables
 for type hints -- the actual DB operations use the supabase-py client.
 """
 from dataclasses import dataclass
-from typing import Any, Optional
 from datetime import datetime
+from typing import Any, Optional
 
 
 @dataclass

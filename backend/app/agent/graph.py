@@ -7,7 +7,6 @@ import logging
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, StateGraph
 
-from app.agent.state import SentinelState
 from app.agent.nodes import (
     analyzer,
     classifier,
@@ -17,6 +16,7 @@ from app.agent.nodes import (
     scanner,
     ticket_creator,
 )
+from app.agent.state import SentinelState
 
 logger = logging.getLogger(__name__)
 

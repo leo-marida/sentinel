@@ -2,9 +2,8 @@
 Supabase-backed LangGraph checkpoint saver.
 Stores graph state in the agent_checkpoints table so HITL survives server restarts.
 """
-import json
 import logging
-from typing import Any, AsyncIterator, Iterator, Optional, Sequence, Tuple
+from typing import Any, AsyncIterator, Iterator, Optional
 
 from langchain_core.runnables import RunnableConfig
 from langgraph.checkpoint.base import (

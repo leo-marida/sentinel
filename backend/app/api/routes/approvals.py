@@ -47,7 +47,9 @@ async def _resume_graph(scan_id: str, updated_findings: list) -> None:
             {"findings": updated_findings, "approved_findings": approved_findings},
             as_node="analyzer",
         )
-        await sentinel_graph.aupdate_state(config, {"current_node": "human_review"}, as_node="human_review")
+        await sentinel_graph.aupdate_state(
+            config, {"current_node": "human_review"}, as_node="human_review"
+        )
         # Resume execution — runs ticket_creator → notifier → reporter
         await sentinel_graph.ainvoke(None, config=config)
         logger.info("[approvals] Graph resumed and completed for scan %s", scan_id)
@@ -69,7 +71,10 @@ async def submit_approval(scan_id: str, body: ApprovalRequest) -> Any:
     if not scan_result.data:
         raise HTTPException(status_code=404, detail="Scan not found")
     if scan_result.data["status"] != "awaiting_approval":
-        raise HTTPException(status_code=409, detail=f"Scan is not awaiting approval (status: {scan_result.data['status']})")
+        raise HTTPException(
+            status_code=409,
+            detail=f"Scan is not awaiting approval (status: {scan_result.data['status']})",
+        )
 
     # Persist approval decisions to DB
     decision_map = {d.finding_id: d.decision for d in body.decisions}

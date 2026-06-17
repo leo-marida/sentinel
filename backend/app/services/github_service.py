@@ -26,6 +26,13 @@ SCANNABLE_EXTENSIONS = {
 
 MAX_FILE_SIZE = 500_000
 
+_GITHUB_ERRORS = (
+    GithubException,
+    UnicodeDecodeError,
+    urllib3.exceptions.HTTPError,
+    requests.exceptions.RequestException,
+)
+
 
 def _parse_repo_url(repo_url: str) -> tuple[str, str]:
     path = urlparse(repo_url).path.strip("/")
@@ -45,7 +52,7 @@ def _get_file_content(repo: Repository, path: str) -> Optional[str]:
         if file_obj.encoding == "base64" and file_obj.content:
             return base64.b64decode(file_obj.content).decode("utf-8", errors="replace")
         return None
-    except (GithubException, UnicodeDecodeError, urllib3.exceptions.HTTPError, requests.exceptions.RequestException) as e:
+    except _GITHUB_ERRORS as e:
         logger.warning("Skipping %s: %s", path, e)
         return None
 
@@ -57,7 +64,7 @@ def _fetch_sync(repo_url: str, max_files: int) -> list[dict]:
     gh = Github(settings.GITHUB_TOKEN)
     try:
         repo = gh.get_repo(f"{owner}/{repo_name}")
-    except (GithubException, urllib3.exceptions.HTTPError, requests.exceptions.RequestException) as e:
+    except _GITHUB_ERRORS as e:
         raise ValueError(f"Cannot access repo {owner}/{repo_name}: {e}") from e
 
     files: list[dict] = []
@@ -67,7 +74,7 @@ def _fetch_sync(repo_url: str, max_files: int) -> list[dict]:
         dir_path = stack.pop()
         try:
             contents = repo.get_contents(dir_path)
-        except (GithubException, urllib3.exceptions.HTTPError, requests.exceptions.RequestException) as e:
+        except _GITHUB_ERRORS as e:
             logger.warning("Cannot read directory %s: %s", dir_path, e)
             continue
 

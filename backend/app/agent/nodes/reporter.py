@@ -11,8 +11,11 @@ from app.db.client import get_supabase
 logger = logging.getLogger(__name__)
 
 
+_SEVERITY_EMOJI = {"critical": "🔴", "high": "🟠", "medium": "🟡", "low": "🔵", "info": "⚪"}
+
+
 def _severity_emoji(severity: str) -> str:
-    return {"critical": "🔴", "high": "🟠", "medium": "🟡", "low": "🔵", "info": "⚪"}.get(severity, "⚪")
+    return _SEVERITY_EMOJI.get(severity, "⚪")
 
 
 async def run(state: SentinelState) -> dict:
@@ -27,7 +30,7 @@ async def run(state: SentinelState) -> dict:
             counts[f["severity"]] += 1
 
     lines: list[str] = [
-        f"# Sentinel Security Report",
+        "# Sentinel Security Report",
         f"**Repository:** `{state['repo_name']}`",
         f"**Scan ID:** `{scan_id}`",
         f"**Generated:** {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}",
@@ -64,7 +67,10 @@ async def run(state: SentinelState) -> dict:
             "",
         ]
 
-    lines += ["## Key Takeaways", f"Review and remediate findings starting with the highest severity."]
+    lines += [
+        "## Key Takeaways",
+        "Review and remediate findings starting with the highest severity.",
+    ]
 
     report = "\n".join(lines)
 

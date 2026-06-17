@@ -22,7 +22,9 @@ def validate_github_url(url: str) -> str:
         raise HTTPException(status_code=400, detail="Only github.com URLs are supported")
     parts = [p for p in parsed.path.strip("/").split("/") if p]
     if len(parts) < 2:
-        raise HTTPException(status_code=400, detail="URL must point to a GitHub repository (owner/repo)")
+        raise HTTPException(
+            status_code=400, detail="URL must point to a GitHub repository (owner/repo)"
+        )
     return url
 
 

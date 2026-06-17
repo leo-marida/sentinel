@@ -5,6 +5,7 @@ then polls until complete. Run with the scan_id as argument:
 """
 import sys
 import time
+
 import httpx
 
 BASE = "http://localhost:8000/api/v1"
@@ -54,7 +55,7 @@ def main():
 
     # Wait for complete
     scan = poll_scan(scan_id, "complete", timeout=120)
-    print(f"\nScan complete!")
+    print("\nScan complete!")
     print(f"Summary: {scan['summary']}")
 
 if __name__ == "__main__":

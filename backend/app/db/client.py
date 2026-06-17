@@ -14,7 +14,7 @@ _local = threading.local()
 
 RETRY_ATTEMPTS = 3
 RETRY_BACKOFF_SECONDS = 1.0  # doubles each attempt
-POSTGREST_TIMEOUT_SECONDS = 20  # default is 120s; a stuck request should fail fast so the retry wrapper can act
+POSTGREST_TIMEOUT_SECONDS = 20  # default is 120s; fail fast so the retry wrapper can act
 
 
 def _add_retry(session: httpx.Client) -> None:
@@ -47,7 +47,9 @@ def get_supabase() -> Client:
     """One Client per OS thread, with retry-on-transient-network-error wrapping."""
     if not hasattr(_local, "client"):
         options = ClientOptions(postgrest_client_timeout=POSTGREST_TIMEOUT_SECONDS)
-        client = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_ROLE_KEY, options=options)
+        client = create_client(
+            settings.SUPABASE_URL, settings.SUPABASE_SERVICE_ROLE_KEY, options=options
+        )
         _add_retry(client.postgrest.session)
         _local.client = client
     return _local.client

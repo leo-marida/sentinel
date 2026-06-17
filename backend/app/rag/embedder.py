@@ -4,7 +4,6 @@ chunk_size=800, chunk_overlap=100 (spec Section 5 rule 5).
 """
 import asyncio
 import logging
-from typing import Optional
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from openai import AsyncOpenAI
@@ -19,7 +18,7 @@ splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=100)
 
 EMBED_BATCH_SIZE = 20  # OpenAI allows up to 2048 inputs per call; keep small for safety
 EMBED_CONCURRENCY = 8  # max batches embedded at once, to stay within OpenAI rate limits
-INSERT_BATCH_SIZE = 50  # rows per Supabase insert call; smaller payloads finish reliably within the 20s client timeout
+INSERT_BATCH_SIZE = 50  # rows per Supabase insert; small payloads finish within the 20s timeout
 
 
 async def embed_texts(texts: list[str]) -> list[list[float]]:

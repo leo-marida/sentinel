@@ -5,12 +5,13 @@ Run once after setting up the database:
     .venv\Scripts\python seed_vuln_knowledge.py
 """
 import asyncio
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from openai import AsyncOpenAI
+
 from app.config import settings
 from app.db.client import get_supabase
 

@@ -61,7 +61,12 @@ async def _scan_event_generator(scan_id: str):
             last_finding_count = len(findings)
 
         if scan["status"] in ("complete", "failed"):
-            yield f"data: {json.dumps({'type': 'done', 'summary': scan.get('summary'), 'report': scan.get('report')})}\n\n"
+            done_payload = {
+                "type": "done",
+                "summary": scan.get("summary"),
+                "report": scan.get("report"),
+            }
+            yield f"data: {json.dumps(done_payload)}\n\n"
             return
 
     yield f"data: {json.dumps({'type': 'timeout'})}\n\n"
