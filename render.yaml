@@ -6,6 +6,8 @@ services:
     dockerContext: ./backend
     plan: free
     healthCheckPath: /health
+    autoDeploy: true
+    branch: main
     envVars:
       - key: OPENAI_API_KEY
         sync: false
