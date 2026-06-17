@@ -4,6 +4,11 @@ Sentinel is a production-grade, multi-agent DevSecOps copilot. Paste a GitHub re
 
 **Live demo flow:** paste a repo URL → Sentinel scans it with Semgrep + Bandit → findings stream in over SSE in real time → an LLM analyst explains root cause + remediation for each finding → you approve/reject each one → the graph resumes, creates tickets, and produces a final report.
 
+**🔗 Live app:** [sentinel-pied-ten.vercel.app](https://sentinel-pied-ten.vercel.app)
+**🔗 Backend API:** [sentinel-backend-txyj.onrender.com](https://sentinel-backend-txyj.onrender.com) ([`/health`](https://sentinel-backend-txyj.onrender.com/health))
+
+> Backend is on Render's free tier and spins down after 15 min idle — the first request may take ~30s to cold-start.
+
 ---
 
 ## Architecture
@@ -123,11 +128,11 @@ Both are wired into GitHub Actions (`.github/workflows/backend-ci.yml`, `fronten
 
 ## Deployment
 
-| Service | Hosts | Notes |
-|---|---|---|
-| [Render](https://render.com) | FastAPI backend | Free tier spins down after 15 min idle — first request after that takes ~30s to cold-start |
-| [Vercel](https://vercel.com) | Next.js frontend | `NEXT_PUBLIC_API_URL` points at the Render backend URL |
-| [Supabase](https://supabase.com) | Postgres + pgvector | Free tier pauses after 7 days idle, unpauses ~20s after first request |
+| Service | Hosts | Live URL | Notes |
+|---|---|---|---|
+| [Render](https://render.com) | FastAPI backend | [sentinel-backend-txyj.onrender.com](https://sentinel-backend-txyj.onrender.com) | Free tier spins down after 15 min idle — first request after that takes ~30s to cold-start. Auto-deploys on push to `main` via `render.yaml` blueprint |
+| [Vercel](https://vercel.com) | Next.js frontend | [sentinel-pied-ten.vercel.app](https://sentinel-pied-ten.vercel.app) | `NEXT_PUBLIC_API_URL` points at the Render backend URL |
+| [Supabase](https://supabase.com) | Postgres + pgvector | — | Free tier pauses after 7 days idle, unpauses ~20s after first request |
 
 See `SENTINEL.md` §8 for exact dashboard setup steps.
 
