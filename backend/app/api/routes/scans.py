@@ -2,6 +2,7 @@ import logging
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+from postgrest.exceptions import APIError
 from pydantic import BaseModel
 from supabase import Client
 
@@ -142,7 +143,12 @@ async def create_scan(
 
 @router.get("/scans/{scan_id}")
 async def get_scan(scan_id: str, db: Client = Depends(get_db)) -> Any:
-    result = db.table("scans").select("*").eq("id", scan_id).single().execute()
+    try:
+        result = db.table("scans").select("*").eq("id", scan_id).single().execute()
+    except APIError:
+        # postgrest raises (rather than returning data=None) when .single()
+        # matches zero rows — that's the normal "no such scan" case here.
+        raise HTTPException(status_code=404, detail="Scan not found") from None
     if not result.data:
         raise HTTPException(status_code=404, detail="Scan not found")
     return result.data

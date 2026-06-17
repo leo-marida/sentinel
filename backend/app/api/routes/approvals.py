@@ -7,6 +7,7 @@ import logging
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
+from postgrest.exceptions import APIError
 from pydantic import BaseModel
 
 from app.agent.graph import sentinel_graph
@@ -67,7 +68,12 @@ async def submit_approval(scan_id: str, body: ApprovalRequest) -> Any:
     db = get_supabase()
 
     # Verify scan exists and is waiting for approval
-    scan_result = db.table("scans").select("status").eq("id", scan_id).single().execute()
+    try:
+        scan_result = db.table("scans").select("status").eq("id", scan_id).single().execute()
+    except APIError:
+        # postgrest raises (rather than returning data=None) when .single()
+        # matches zero rows — that's the normal "no such scan" case here.
+        raise HTTPException(status_code=404, detail="Scan not found") from None
     if not scan_result.data:
         raise HTTPException(status_code=404, detail="Scan not found")
     if scan_result.data["status"] != "awaiting_approval":

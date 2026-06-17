@@ -9,6 +9,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from fastapi.testclient import TestClient
+from postgrest.exceptions import APIError
 
 from app.api.deps import get_db
 from app.main import app
@@ -114,6 +115,19 @@ class TestGetScan:
 
         assert response.status_code == 404
 
+    def test_returns_404_when_postgrest_raises_for_zero_rows(self, client):
+        """Real postgrest-py raises APIError on .single() with zero matching rows
+        instead of returning data=None — this must still surface as 404, not 500.
+        """
+        db = MagicMock()
+        chain = db.table.return_value.select.return_value.eq.return_value.single
+        chain.return_value.execute.side_effect = APIError({"message": "no rows"})
+        app.dependency_overrides[get_db] = lambda: db
+
+        response = client.get("/api/v1/scans/missing")
+
+        assert response.status_code == 404
+
 
 class TestGetScanFindings:
     def test_returns_findings_list(self, client):
@@ -166,6 +180,19 @@ class TestSubmitApproval:
 
     def test_404_when_scan_missing(self, client, monkeypatch):
         self._patch_scan_status(monkeypatch, status=None)
+
+        response = client.post("/api/v1/scans/missing/approve", json={"decisions": []})
+
+        assert response.status_code == 404
+
+    def test_404_when_postgrest_raises_for_zero_rows(self, client, monkeypatch):
+        """Real postgrest-py raises APIError on .single() with zero matching rows
+        instead of returning data=None — this must still surface as 404, not 500.
+        """
+        db = MagicMock()
+        chain = db.table.return_value.select.return_value.eq.return_value.single
+        chain.return_value.execute.side_effect = APIError({"message": "no rows"})
+        monkeypatch.setattr("app.api.routes.approvals.get_supabase", lambda: db)
 
         response = client.post("/api/v1/scans/missing/approve", json={"decisions": []})
 
